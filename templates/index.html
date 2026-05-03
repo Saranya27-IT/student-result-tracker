@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Result Tracker API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1F4E79, #2E75B6);
+      color: white;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p  { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+    .badge {
+      background: #fff;
+      color: #1F4E79;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: auto;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-top: 4px solid #2E75B6;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 800; color: #1F4E79; }
+    .stat-card .label { font-size: 0.8rem; color: #666; margin-top: 4px; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 10px 22px;
+      border: 2px solid #2E75B6;
+      background: white;
+      color: #2E75B6;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #1F4E79;
+      border-color: #1F4E79;
+      color: white;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1F4E79;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8f0fe;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.8rem; font-weight: 600; color: #444; }
+    input, select, textarea {
+      padding: 10px 14px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border 0.2s;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #2E75B6;
+      box-shadow: 0 0 0 3px rgba(46,117,182,0.1);
+    }
+    textarea { resize: vertical; min-height: 100px; font-family: 'Courier New', monospace; font-size: 0.82rem; }
+
+    .btn {
+      padding: 11px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #1F4E79; color: white; }
+    .btn-primary:hover { background: #163b5c; }
+    .btn-danger  { background: #dc3545; color: white; }
+    .btn-danger:hover  { background: #b02a37; }
+    .btn-success { background: #198754; color: white; }
+    .btn-success:hover { background: #146c43; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th {
+      background: #1F4E79;
+      color: white;
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    td { padding: 11px 14px; border-bottom: 1px solid #f0f0f0; }
+    tr:hover td { background: #f8fbff; }
+
+    .grade-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .grade-O  { background: #d4edda; color: #155724; }
+    .grade-Ap { background: #cce5ff; color: #004085; }
+    .grade-A  { background: #d1ecf1; color: #0c5460; }
+    .grade-Bp { background: #fff3cd; color: #856404; }
+    .grade-B  { background: #fde8a8; color: #7a5200; }
+    .grade-C  { background: #ffd9b3; color: #7c3f00; }
+    .grade-F  { background: #f8d7da; color: #721c24; }
+    .pass-badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; }
+    .pass  { background: #d4edda; color: #155724; }
+    .fail  { background: #f8d7da; color: #721c24; }
+
+    .response-box {
+      background: #1a1a2e;
+      color: #a8d8a8;
+      border-radius: 10px;
+      padding: 18px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 16px;
+      display: none;
+    }
+    .response-box.show { display: block; }
+    .response-box.error { color: #ffaaaa; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .hint { font-size: 0.78rem; color: #888; margin-top: 6px; }
+
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎓 Student Result Tracker API</h1>
+    <p>RESTful API · Flask · Python · JSON · Built by R. Saranya </p>
+  </div>
+  <span class="badge">REST API</span>
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Total Students</div></div>
+    <div class="stat-card"><div class="num" id="stat-pass" style="color:#198754">0</div><div class="label">Passed</div></div>
+    <div class="stat-card"><div class="num" id="stat-fail" style="color:#dc3545">0</div><div class="label">Failed</div></div>
+    <div class="stat-card"><div class="num" id="stat-avg" style="color:#fd7e14">-</div><div class="label">Avg Score</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('view', event)">📋 View All</button>
+    <button class="tab-btn" onclick="switchTab('search', event)">🔍 Search</button>
+    <button class="tab-btn" onclick="switchTab('add', event)">➕ Add Student</button>
+    <button class="tab-btn" onclick="switchTab('update', event)">✏️ Update Marks</button>
+    <button class="tab-btn" onclick="switchTab('delete', event)">🗑️ Delete</button>
+    <button class="tab-btn" onclick="switchTab('summary', event)">📊 Summary</button>
+    <button class="tab-btn" onclick="switchTab('api', event)">🔗 API Docs</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-view">
+    <div class="card">
+      <h2>All Students</h2>
+      <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;">
+        <input type="text" id="dept-filter" placeholder="Filter by Department (e.g. IT)" style="max-width:220px;" />
+        <button class="btn btn-primary" onclick="loadStudents()">Refresh</button>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Roll No</th><th>Name</th><th>Dept</th><th>Sem</th>
+          <th>Average</th><th>Grade</th><th>Result</th>
+        </tr></thead>
+        <tbody id="students-tbody"><tr><td colspan="7" style="text-align:center;color:#aaa;padding:24px;">Click Refresh to load data</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-search">
+    <div class="card">
+      <h2>Search by Roll Number</h2>
+      <div style="display:flex;gap:12px;">
+        <input type="text" id="search-roll" placeholder="Enter Roll No (e.g. IT2201)" style="max-width:260px;" />
+        <button class="btn btn-primary" onclick="searchStudent()">Search</button>
+      </div>
+      <div class="response-box" id="search-response"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-add">
+    <div class="card">
+      <h2>Add New Student</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Roll Number *</label>
+          <input type="text" id="add-roll" placeholder="e.g. IT2201" />
+        </div>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="add-name" placeholder="e.g. Saranya S" />
+        </div>
+        <div class="form-group">
+          <label>Department *</label>
+          <input type="text" id="add-dept" placeholder="e.g. IT" />
+        </div>
+        <div class="form-group">
+          <label>Semester *</label>
+          <input type="number" id="add-sem" placeholder="e.g. 3" min="1" max="8" />
+        </div>
+        <div class="form-group full">
+          <label>Subject Marks * (JSON format)</label>
+          <textarea id="add-subjects" placeholder='{
+  "Python Programming": 88,
+  "Data Structures": 76,
+  "DBMS": 91,
+  "Web Technologies": 85,
+  "Mathematics": 79
+}'></textarea>
+          <p class="hint">Enter marks between 0-100. Minimum pass mark per subject: 40.</p>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-success" onclick="addStudent()">➕ Add Student</button>
+      </div>
+      <div class="response-box" id="add-response"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-update">
+    <div class="card">
+      <h2>Update Student Marks</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Roll Number *</label>
+          <input type="text" id="upd-roll" placeholder="e.g. IT2201" />
+        </div>
+        <div class="form-group">
+          <label>Semester (optional)</label>
+          <input type="number" id="upd-sem" placeholder="Leave blank to keep same" min="1" max="8" />
+        </div>
+        <div class="form-group full">
+          <label>Updated Subject Marks (JSON format)</label>
+          <textarea id="upd-subjects" placeholder='{
+  "Python Programming": 92,
+  "Data Structures": 80
+}'></textarea>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="updateStudent()">✏️ Update</button>
+      </div>
+      <div class="response-box" id="upd-response"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-delete">
+    <div class="card">
+      <h2>Delete Student Record</h2>
+      <div style="display:flex;gap:12px;align-items:flex-end;">
+        <div class="form-group" style="flex:1;max-width:280px;">
+          <label>Roll Number *</label>
+          <input type="text" id="del-roll" placeholder="e.g. IT2201" />
+        </div>
+        <button class="btn btn-danger" onclick="deleteStudent()">🗑️ Delete</button>
+      </div>
+      <p class="hint" style="margin-top:10px;">This action is permanent and cannot be undone.</p>
+      <div class="response-box" id="del-response"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-summary">
+    <div class="card">
+      <h2>Department-wise Summary</h2>
+      <button class="btn btn-primary" onclick="loadSummary()" style="margin-bottom:16px;">Load Summary</button>
+      <div id="summary-content"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-api">
+    <div class="card">
+      <h2>API Reference</h2>
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td style="color:#198754;font-weight:700">GET</td><td><code>/api/students</code></td><td>Get all students</td></tr>
+          <tr><td style="color:#198754;font-weight:700">GET</td><td><code>/api/students/&lt;roll_no&gt;</code></td><td>Get one student</td></tr>
+          <tr><td style="color:#0d6efd;font-weight:700">POST</td><td><code>/api/students</code></td><td>Add new student</td></tr>
+          <tr><td style="color:#fd7e14;font-weight:700">PUT</td><td><code>/api/students/&lt;roll_no&gt;</code></td><td>Update student</td></tr>
+          <tr><td style="color:#dc3545;font-weight:700">DELETE</td><td><code>/api/students/&lt;roll_no&gt;</code></td><td>Delete student</td></tr>
+          <tr><td style="color:#198754;font-weight:700">GET</td><td><code>/api/summary</code></td><td>Department summary</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(name, event) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'view') loadStudents();
+  }
+
+  function showResponse(id, data, isError) {
+    const el = document.getElementById(id);
+    el.textContent = JSON.stringify(data, null, 2);
+    el.className = 'response-box show' + (isError ? ' error' : '');
+  }
+
+  function gradeClass(grade) {
+    const map = { 'O': 'grade-O', 'A+': 'grade-Ap', 'A': 'grade-A', 'B+': 'grade-Bp', 'B': 'grade-B', 'C': 'grade-C', 'F': 'grade-F' };
+    return map[grade] || '';
+  }
+
+  async function loadStudents() {
+    const dept = document.getElementById('dept-filter').value.trim();
+    const url = dept ? '/api/students?department=' + dept : '/api/students';
+    const res = await fetch(url);
+    const data = await res.json();
+    const tbody = document.getElementById('students-tbody');
+    if (!data.students || data.students.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:24px;">No students found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.students.map(s => `
+      <tr>
+        <td><strong>${s.roll_no}</strong></td>
+        <td>${s.name}</td>
+        <td>${s.department}</td>
+        <td>${s.semester}</td>
+        <td><strong>${s.average}</strong></td>
+        <td><span class="grade-badge ${gradeClass(s.grade)}">${s.grade}</span></td>
+        <td><span class="pass-badge ${s.result === 'Pass' ? 'pass' : 'fail'}">${s.result}</span></td>
+      </tr>`).join('');
+    const passed = data.students.filter(s => s.result === 'Pass').length;
+    const avg = data.students.reduce((a, s) => a + s.average, 0) / data.students.length;
+    document.getElementById('stat-total').textContent = data.count;
+    document.getElementById('stat-pass').textContent = passed;
+    document.getElementById('stat-fail').textContent = data.count - passed;
+    document.getElementById('stat-avg').textContent = avg.toFixed(1);
+  }
+
+  async function searchStudent() {
+    const roll = document.getElementById('search-roll').value.trim();
+    if (!roll) return alert('Enter a roll number.');
+    const res = await fetch('/api/students/' + roll);
+    const data = await res.json();
+    showResponse('search-response', data, !data.success);
+  }
+
+  async function addStudent() {
+    const roll = document.getElementById('add-roll').value.trim();
+    const name = document.getElementById('add-name').value.trim();
+    const dept = document.getElementById('add-dept').value.trim();
+    const sem  = parseInt(document.getElementById('add-sem').value);
+    let subjects;
+    try { subjects = JSON.parse(document.getElementById('add-subjects').value); }
+    catch(e) { return alert('Invalid JSON in subjects field.'); }
+    const res = await fetch('/api/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roll_no: roll, name, department: dept, semester: sem, subjects })
+    });
+    const data = await res.json();
+    showResponse('add-response', data, !data.success);
+  }
+
+  async function updateStudent() {
+    const roll = document.getElementById('upd-roll').value.trim();
+    if (!roll) return alert('Enter a roll number.');
+    const body = {};
+    const sem = document.getElementById('upd-sem').value;
+    if (sem) body.semester = parseInt(sem);
+    const subj = document.getElementById('upd-subjects').value.trim();
+    if (subj) {
+      try { body.subjects = JSON.parse(subj); }
+      catch(e) { return alert('Invalid JSON in subjects field.'); }
+    }
+    const res = await fetch('/api/students/' + roll, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    showResponse('upd-response', data, !data.success);
+  }
+
+  async function deleteStudent() {
+    const roll = document.getElementById('del-roll').value.trim();
+    if (!roll) return alert('Enter a roll number.');
+    if (!confirm('Are you sure you want to delete student ' + roll + '?')) return;
+    const res = await fetch('/api/students/' + roll, { method: 'DELETE' });
+    const data = await res.json();
+    showResponse('del-response', data, !data.success);
+  }
+
+  async function loadSummary() {
+    const res = await fetch('/api/summary');
+    const data = await res.json();
+    const container = document.getElementById('summary-content');
+    if (!data.success || !Object.keys(data.summary).length) {
+      container.innerHTML = '<p style="color:#aaa">No data available.</p>';
+      return;
+    }
+    container.innerHTML = Object.entries(data.summary).map(([dept, info]) => `
+      <div style="background:#f8fbff;border-radius:10px;padding:16px;margin-bottom:16px;border-left:4px solid #2E75B6;">
+        <h3 style="color:#1F4E79;margin-bottom:10px;">Department: ${dept}</h3>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;">
+          <div style="text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#1F4E79">${info.total}</div><div style="font-size:0.75rem;color:#666">Total</div></div>
+          <div style="text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#198754">${info.passed}</div><div style="font-size:0.75rem;color:#666">Passed</div></div>
+          <div style="text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#dc3545">${info.failed}</div><div style="font-size:0.75rem;color:#666">Failed</div></div>
+          <div style="text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#fd7e14">${info.dept_average}</div><div style="font-size:0.75rem;color:#666">Dept Avg</div></div>
+        </div>
+        ${info.toppers.length ? '<strong style="font-size:0.82rem;color:#1F4E79">Toppers (80+):</strong><div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">' + info.toppers.map(t => '<span style="background:#e8f5e9;color:#1b5e20;padding:4px 10px;border-radius:8px;font-size:0.8rem;">' + t.name + ' (' + t.average + ' · ' + t.grade + ')</span>').join('') + '</div>' : ''}
+      </div>`).join('');
+  }
+
+  loadStudents();
+</script>
+</body>
+</html>
