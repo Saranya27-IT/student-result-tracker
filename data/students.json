@@ -1,0 +1,72 @@
+﻿[
+  {
+    "roll_no": "IT2201",
+    "name": "Saranya S",
+    "department": "IT",
+    "semester": 3,
+    "subjects": {
+      "Python Programming": 91,
+      "Data Structures": 84,
+      "DBMS": 88,
+      "Web Technologies": 93,
+      "Mathematics": 76
+    },
+    "created_at": "2025-01-10 09:00:00"
+  },
+  {
+    "roll_no": "IT2202",
+    "name": "Priya R",
+    "department": "IT",
+    "semester": 3,
+    "subjects": {
+      "Python Programming": 72,
+      "Data Structures": 65,
+      "DBMS": 78,
+      "Web Technologies": 81,
+      "Mathematics": 60
+    },
+    "created_at": "2025-01-10 09:05:00"
+  },
+  {
+    "roll_no": "IT2203",
+    "name": "Karthik M",
+    "department": "IT",
+    "semester": 3,
+    "subjects": {
+      "Python Programming": 45,
+      "Data Structures": 38,
+      "DBMS": 55,
+      "Web Technologies": 62,
+      "Mathematics": 41
+    },
+    "created_at": "2025-01-10 09:10:00"
+  },
+  {
+    "roll_no": "CSE2101",
+    "name": "Divya K",
+    "department": "CSE",
+    "semester": 3,
+    "subjects": {
+      "C Programming": 95,
+      "Digital Electronics": 88,
+      "Discrete Mathematics": 91,
+      "Computer Organization": 87,
+      "English": 79
+    },
+    "created_at": "2025-01-10 09:15:00"
+  },
+  {
+    "roll_no": "CSE2102",
+    "name": "Arun P",
+    "department": "CSE",
+    "semester": 3,
+    "subjects": {
+      "C Programming": 58,
+      "Digital Electronics": 47,
+      "Discrete Mathematics": 52,
+      "Computer Organization": 61,
+      "English": 55
+    },
+    "created_at": "2025-01-10 09:20:00"
+  }
+]
